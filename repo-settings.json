@@ -1,0 +1,6 @@
+{
+    "name": "terraform-azurerm-azure-filestorage",
+    "description": "Terraform module for setting up Azure File Storage and Shares",
+    "version": "v1.0.0",
+    "message": "Initial Version"
+}
