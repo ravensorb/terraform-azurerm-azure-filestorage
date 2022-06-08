@@ -13,55 +13,75 @@ provider "azurerm" {
 module "azure-filestorage" {
   source  = "ravensorb/azure-filestorage/azurerm"
 
-  # The name to use for this instance
-  name                = "filestorage"
-
-  # A prefix to use for all resouyrces created (if left blank, the resource group name will be used)
-  resource_prefix     = "shared-eastus2"
+	# Name of the azure file sync instance (default "filesync")
+	name = "filesync"
 
   # By default, this module will create a resource group, proivde the name here
   # to use an existing resource group, specify the existing resource group name, 
   # and set the argument to `create_resource_group = false`. Location will be same as existing RG. 
-  resource_group_name = "shared-eastus2-rg-filestorage"
-  
-  # Location to deploy into
-  location            = "eastus2"
 
-  # Set to true to limit access to specific subnets.  
+	# Whether to create resource group and use it for all networking resources (default "true")
+	create_resource_group = true
+	# A container that holds related resources for an Azure solution (default "rg-filesync")
+	resource_group_name = "rg-filesync"
+
+	# The location/region to keep all your network resources. To get the list of all locations with table format from azure cli, run 'az account list-locations -o table' (default "eastus2")
+	location = "eastus2"
+
+	# (Optional) Prefix to use for all resoruces created (Defaults to resource_group_name)
+	resource_prefix = "shared-fstg"
+
+	# (Optional) Indicates the name of vnet to limit access to (Reqired if limited access) (default "")
+	virtual_network_name = ""
+
+	# (Optional) Indicates the name of resource group that contains the vnet to limit access to (Reqired if limited access) (default "")
+	virtual_network_resource_group_name = ""
+
+	# (Optional) Indicates the name of subnet to limit access to (Reqired if limited access) (default "")
+	subnet_name = ""
+
+	# (Optional) Storage account to add shares to (default null)
+	storage_account_name = null
+
+	# (Optional) Resource Group that contains the Storage account to add shares to (default null)
+	storage_account_resource_group_name = null
+
+	# (Optional) Indicates the storage tier to allocate (default "Standard")
+	storage_account_tier = "Standard"
+
+	# (Optional) Indicates the replication type to use for the storage account (default "LRS")
+	storage_account_replication_type = "LRS"
+
+	# (Optional) Indicates if access should be limited to specific subnets (default "false")
   # Note: requires settings virtual_network_name, virtual_network_resource_group_name, and subnet_net
-  storage_account_limit_access_to_subnets = false
-  # VNet and Subnet details
-  # The vnet to use to deploy this into
-  #virtual_network_name                = ""
-  # The resource group name for vnet to use to deploy this into
-  #virtual_network_resource_group_name = "" # Set to null to use the sameresource group 
-  # The number of the subnet to use only needed if limited access to specific subnets
-  #subnet_name                         = ""
+	storage_account_limit_access_to_subnets = false
 
-  # Storage Account Settings
-  storage_account_tier                                = "Standard"
-  storage_account_replication_type                    = "LRS"
+	# (Optional) Indicates the type of authentication to enable (blank, AD, AADDS) (default "")
+	storage_account_authentication_type = ""
 
-  # Storage Account Authentication
-  #storage_account_authentication_type                 = null
-  #storage_account_authentication_domain_name          = null
-  #storage_account_authentication_storage_sid          = null
-  #storage_account_authentication_domain_sid           = null
-  #storage_account_authentication_domain_guid          = null
-  #storage_account_authentication_forest_name          = null
-  #storage_account_authentication_netbios_domain_name  = null
+	# (Required for AD) Specifies the security identifier (SID) for Azure Storage. (default null)
+	storage_account_authentication_storage_sid = null
 
-  # Storage Account Settings
-  shares = [
-    {
-      share_name  = "storage"
-      share_quota = 1024
-      
-    },
-    {
-      share_name  = "archive"
-    },
-  ]
+	# (Required for AD) Specifies the security identifier (SID). (default null)
+	storage_account_authentication_domain_sid = null
+
+	# (Required for AD) Specifies the domain GUID. (default null)
+	storage_account_authentication_domain_guid = null
+
+	# (Required for AD) Specifies the Active Directory forest. (default null)
+	storage_account_authentication_forest_name = null
+
+	# (Required for AD) Specifies the NetBIOS domain name. (default null)
+	storage_account_authentication_netbios_domain_name = null
+
+	# (Optional) Indicates the name of the domain to use for authentication (default "")
+	storage_account_authentication_domain_name = ""
+
+	# Storage Share details
+	shares = [
+		{ name = "storage", quota = 1024 },
+		{ name = "archive", access_tier = "Premium", quota = 10240 }
+	]
 
   # Adding TAG's to your Azure resources (Required)
   tags = {
